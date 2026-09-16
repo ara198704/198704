@@ -1,39 +1,105 @@
-#!/bin/bash
-set -e
+worker_processes 1;
+events { worker_connections 1024; }
 
-echo "🚀 Starting X-UI + nginx reverse proxy..."
+http {
+    server {
+        listen ${NGINX_PORT};
 
-# مسیرهای قابل نوشتن
-NGINX_TMP_DIR="/tmp/nginx"
-X_UI_DB_DIR="/tmp/x-ui-db"
+        # مسیر پنل وب (فوروارد به پورت داخلی 2053 که x-ui روش گوش می‌ده)
+        location /managepanel/ {
+            proxy_pass http://127.0.0.1:2053/managepanel/;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
 
-mkdir -p "$NGINX_TMP_DIR" "$X_UI_DB_DIR" /var/log/x-ui /var/log/nginx
+        # مسیر Subscription (ساب لینک) - فوروارد به پورت داخلی 2096
+        location /sub/ {
+            proxy_pass http://127.0.0.1:2096/sub/;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
 
-# nginx همیشه روی پورت ثابت 3000 گوش می‌دهد (Dockfly این پورت را expose می‌کند)
-export NGINX_PORT=3000
-
-cd /usr/local/x-ui
-
-echo "🔧 Applying panel settings via x-ui CLI..."
-# تنظیم مسیر دیتابیس 3x-ui به مسیر قابل نوشتن
-./x-ui setting -port 2053 -webBasePath /managepanel/ -dbPath "$X_UI_DB_DIR/x-ui.db" || true
-
-echo "🔧 Building nginx.conf for fixed port: $NGINX_PORT"
-# نوشتن کانفیگ nginx در مسیر قابل نوشتن
-envsubst '${NGINX_PORT}' < /etc/nginx/nginx.conf.template > "$NGINX_TMP_DIR/nginx.conf"
-
-# اصلاح مسیرهای لاگ و pid در کانفیگ nginx (چون فایل اصلی read-only است)
-sed -i "s|/var/log/nginx/error.log|$NGINX_TMP_DIR/error.log|g" "$NGINX_TMP_DIR/nginx.conf"
-sed -i "s|/var/log/nginx/access.log|$NGINX_TMP_DIR/access.log|g" "$NGINX_TMP_DIR/nginx.conf"
-sed -i "s|/var/run/nginx.pid|$NGINX_TMP_DIR/nginx.pid|g" "$NGINX_TMP_DIR/nginx.conf"
-
-echo "▶️  Starting x-ui in background..."
-./x-ui &
-X_UI_PID=$!
-
-sleep 3
-
-echo "▶️  Starting nginx in foreground on port $NGINX_PORT..."
-# استفاده از کانفیگ سفارشی در مسیر قابل نوشتن
-nginx -t -c "$NGINX_TMP_DIR/nginx.conf"
-exec nginx -g "daemon off;" -c "$NGINX_TMP_DIR/nginx.conf"
+        # هر مسیر دیگه (اینباند VLESS/WebSocket) به پورت داخلی 8080
+        location / {
+            proxy_pass http://127.0.0.1:8080;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+location /in1 {
+    proxy_pass http://127.0.0.1:8081;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+}
+location /in2 {
+    proxy_pass http://127.0.0.1:8082;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+}
+location /in3 {
+    proxy_pass http://127.0.0.1:8083;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+}
+location /in4 {
+    proxy_pass http://127.0.0.1:8084;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+}
+location /in5 {
+    proxy_pass http://127.0.0.1:8085;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+}
+location /in6 {
+    proxy_pass http://127.0.0.1:8086;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+}
+location /in7 {
+    proxy_pass http://127.0.0.1:8087;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+}
+location /in8 {
+    proxy_pass http://127.0.0.1:8088;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+}
+location /in9 {
+    proxy_pass http://127.0.0.1:8089;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+}
+    }
+}
