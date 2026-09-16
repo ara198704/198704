@@ -17,9 +17,9 @@ RUN curl -L https://github.com/mhsanaei/3x-ui/releases/download/v3.5.0/x-ui-linu
     && rm /tmp/x-ui.tar.gz \
     && chmod +x /usr/local/x-ui/x-ui
 
-# ایجاد مسیرهای قابل نوشتن در /tmp
-RUN mkdir -p /tmp/x-ui-db /tmp/x-ui-log /tmp/nginx \
-    && chmod -R 777 /tmp
+# ایجاد مسیرهای قابل نوشتن و تنظیم مجوز 777
+RUN mkdir -p /etc/x-ui /var/log/x-ui /var/lib/nginx/tmp /var/lib/nginx/logs /var/log/nginx \
+    && chmod -R 777 /etc/x-ui /var/log/x-ui /var/lib/nginx /var/log/nginx
 
 # کپی فایل‌های پروژه
 COPY nginx.conf.template /etc/nginx/nginx.conf.template
@@ -29,5 +29,7 @@ RUN chmod +x /start.sh
 # فیلتر envsubst تا فقط ${NGINX_PORT} جایگزین شود
 ENV NGINX_ENVSUBST_FILTER='^(NGINX_PORT)$'
 
-# هیچ VOLUME تعریف نکنید تا فایل‌سیستم دست‌نخورده بماند
+# تعریف volume برای مسیرهای قابل نوشتن
+VOLUME ["/etc/x-ui", "/var/log/x-ui", "/var/lib/nginx", "/var/log/nginx"]
+
 CMD ["/start.sh"]
