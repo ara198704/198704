@@ -10,8 +10,7 @@ cd /usr/local/x-ui
 mkdir -p /usr/local/x-ui/bin
 
 echo "🔧 Applying panel settings via x-ui CLI..."
-# تغییر مهم: اضافه کردن -listenIP 0.0.0.0
-./x-ui setting -port 2053 -webBasePath /managepanel/ -listenIP 0.0.0.0 || true
+./x-ui setting -port 2053 -webBasePath /managepanel/ || true
 
 echo "🔧 Building nginx.conf for fixed port: $NGINX_PORT"
 envsubst '${NGINX_PORT}' < /etc/nginx/nginx.conf.template > /tmp/nginx.conf
