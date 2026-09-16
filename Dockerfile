@@ -17,24 +17,18 @@ RUN curl -L https://github.com/mhsanaei/3x-ui/releases/download/v3.5.0/x-ui-linu
     && rm /tmp/x-ui.tar.gz \
     && chmod +x /usr/local/x-ui/x-ui
 
-# انتقال پوشه bin به /tmp و ساخت symlink (برای رفع خطای read-only در xray)
-RUN mv /usr/local/x-ui/bin /tmp/x-ui-bin \
-    && ln -s /tmp/x-ui-bin /usr/local/x-ui/bin \
-    && chmod -R 777 /tmp/x-ui-bin
-
-# ایجاد مسیرهای قابل نوشتن برای دیتابیس و لاگ‌های 3x-ui و nginx
+# ایجاد مسیرهای قابل نوشتن و تنظیم مجوز
 RUN mkdir -p /etc/x-ui /var/log/x-ui /var/lib/nginx/tmp /var/lib/nginx/logs /var/log/nginx \
-    && chmod -R 777 /etc/x-ui /var/log/x-ui /var/lib/nginx /var/log/nginx
+    && chmod -R 777 /usr/local/x-ui /etc/x-ui /var/log/x-ui /var/lib/nginx /var/log/nginx
 
 # کپی فایل‌های پروژه
 COPY nginx.conf.template /etc/nginx/nginx.conf.template
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-# فیلتر envsubst تا فقط ${NGINX_PORT} جایگزین شود
 ENV NGINX_ENVSUBST_FILTER='^(NGINX_PORT)$'
 
-# تعریف volume برای مسیرهای قابل نوشتن
-VOLUME ["/etc/x-ui", "/var/log/x-ui", "/var/lib/nginx", "/var/log/nginx"]
+# مهم: /usr/local/x-ui هم volume می‌شود تا bin/ و فایل‌های xray قابل نوشتن باشند
+VOLUME ["/usr/local/x-ui", "/etc/x-ui", "/var/log/x-ui", "/var/lib/nginx", "/var/log/nginx"]
 
 CMD ["/start.sh"]
