@@ -17,6 +17,12 @@ RUN curl -L https://github.com/mhsanaei/3x-ui/releases/download/v3.5.0/x-ui-linu
     && rm /tmp/x-ui.tar.gz \
     && chmod +x /usr/local/x-ui/x-ui
 
+# ایجاد مسیرهای قابل نوشتن و symlink برای /etc/x-ui
+RUN mkdir -p /tmp/x-ui-db /tmp/nginx /tmp/client_body /tmp/proxy /tmp/fastcgi /tmp/uwsgi /tmp/scgi \
+    && chmod -R 777 /tmp \
+    && rm -rf /etc/x-ui \
+    && ln -sfn /tmp/x-ui-db /etc/x-ui
+
 # کپی فایل‌های پروژه
 COPY nginx.conf.template /etc/nginx/nginx.conf.template
 COPY start.sh /start.sh
@@ -25,7 +31,7 @@ RUN chmod +x /start.sh
 # فیلتر envsubst تا فقط ${NGINX_PORT} جایگزین شود
 ENV NGINX_ENVSUBST_FILTER='^(NGINX_PORT)$'
 
-# /etc را به عنوان volume تعریف می‌کنیم تا قابل نوشتن شود (برای ساخت /etc/x-ui)
+# /etc و /tmp را به عنوان volume تعریف می‌کنیم تا قابل نوشتن شوند
 VOLUME ["/etc", "/tmp"]
 
 CMD ["/start.sh"]
