@@ -17,11 +17,19 @@ RUN curl -L https://github.com/mhsanaei/3x-ui/releases/download/v3.5.0/x-ui-linu
     && rm /tmp/x-ui.tar.gz \
     && chmod +x /usr/local/x-ui/x-ui
 
-RUN mkdir -p /etc/x-ui /var/log/x-ui
+# ایجاد مسیرهای قابل نوشتن برای nginx و دیتابیس 3x-ui
+RUN mkdir -p /tmp/nginx /tmp/x-ui-db /var/log/x-ui /var/log/nginx
 
+# معرفی این مسیرها به عنوان volume (برای اطمینان از قابل نوشتن بودن)
+VOLUME ["/tmp/nginx", "/tmp/x-ui-db", "/var/log/x-ui", "/var/log/nginx"]
+
+# کپی فایل‌های پروژه
 COPY nginx.conf.template /etc/nginx/nginx.conf.template
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-# Railway پورت رو از طریق متغیر $PORT تزریق می‌کند
+# تنظیم فیلتر envsubst تا فقط ${NGINX_PORT} را جایگزین کند
+ENV NGINX_ENVSUBST_FILTER='^(NGINX_PORT)$'
+
+# Railway/Dockfly پورت رو از طریق متغیر $PORT تزریق می‌کند
 CMD ["/start.sh"]
