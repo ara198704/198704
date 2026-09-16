@@ -17,9 +17,9 @@ RUN curl -L https://github.com/mhsanaei/3x-ui/releases/download/v3.5.0/x-ui-linu
     && rm /tmp/x-ui.tar.gz \
     && chmod +x /usr/local/x-ui/x-ui
 
-# ایجاد مسیرهای قابل نوشتن و تنظیم مجوز
-RUN mkdir -p /etc/x-ui /var/log/x-ui /var/lib/nginx/tmp /var/lib/nginx/logs /var/log/nginx \
-    && chmod -R 777 /usr/local/x-ui /etc/x-ui /var/log/x-ui /var/lib/nginx /var/log/nginx
+# ایجاد مسیرهای قابل نوشتن برای nginx و 3x-ui
+RUN mkdir -p /etc/x-ui /var/log/x-ui /tmp/client_body /tmp/proxy /tmp/fastcgi /tmp/uwsgi /tmp/scgi \
+    && chmod -R 777 /usr/local/x-ui /etc/x-ui /var/log/x-ui /tmp
 
 # کپی فایل‌های پروژه
 COPY nginx.conf.template /etc/nginx/nginx.conf.template
@@ -28,7 +28,6 @@ RUN chmod +x /start.sh
 
 ENV NGINX_ENVSUBST_FILTER='^(NGINX_PORT)$'
 
-# مهم: /usr/local/x-ui هم volume می‌شود تا bin/ و فایل‌های xray قابل نوشتن باشند
-VOLUME ["/usr/local/x-ui", "/etc/x-ui", "/var/log/x-ui", "/var/lib/nginx", "/var/log/nginx"]
+VOLUME ["/usr/local/x-ui", "/etc/x-ui", "/var/log/x-ui"]
 
 CMD ["/start.sh"]
