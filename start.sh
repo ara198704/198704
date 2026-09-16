@@ -3,7 +3,8 @@ set -e
 
 echo "🚀 Starting X-UI + nginx reverse proxy..."
 
-export NGINX_PORT=3000
+# Dockfly پورت را روی 8080 ثابت کرده است
+export NGINX_PORT=8080
 
 cd /usr/local/x-ui
 
